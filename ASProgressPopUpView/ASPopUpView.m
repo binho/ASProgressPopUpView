@@ -27,7 +27,7 @@
 }
 @end
 
-const float ARROW_LENGTH = 8.0;
+const float ARROW_LENGTH = 3.0;
 const float POPUPVIEW_WIDTH_PAD = 1.15;
 const float POPUPVIEW_HEIGHT_PAD = 1.1;
 
@@ -146,14 +146,15 @@ NSString *const FillColorAnimation = @"fillColor";
 // the animation progress will be adjusted manually
 - (void)setAnimatedColors:(NSArray *)animatedColors withKeyTimes:(NSArray *)keyTimes
 {
-    NSMutableArray *cgColors = [NSMutableArray array];
+    NSMutableArray *colors = [NSMutableArray array];
+
     for (UIColor *col in animatedColors) {
-        [cgColors addObject:(id)col.CGColor];
+        [colors addObject:(id)col.CGColor];
     }
     
     CAKeyframeAnimation *colorAnim = [CAKeyframeAnimation animationWithKeyPath:FillColorAnimation];
     colorAnim.keyTimes = keyTimes;
-    colorAnim.values = cgColors;
+    colorAnim.values = colors;
     colorAnim.fillMode = kCAFillModeBoth;
     colorAnim.duration = 1.0;
     colorAnim.delegate = self;
@@ -171,7 +172,16 @@ NSString *const FillColorAnimation = @"fillColor";
 {
     if ([_colorAnimLayer animationForKey:FillColorAnimation]) {
         _colorAnimLayer.timeOffset = animOffset;
-        _pathLayer.fillColor = [_colorAnimLayer.presentationLayer fillColor];
+        
+        if (animOffset <= 0.5) {
+            _pathLayer.fillColor = [UIColor redColor].CGColor;
+        }
+        else {
+            _pathLayer.fillColor = [UIColor colorWithRed:0.180 green:0.800 blue:0.443 alpha:1.000].CGColor;
+        }
+        
+//        _pathLayer.fillColor = [_colorAnimLayer.presentationLayer fillColor];
+        
         block([self opaqueColor]);
     }
 }
@@ -182,6 +192,7 @@ NSString *const FillColorAnimation = @"fillColor";
     if (arrowOffset != _arrowCenterOffset || !CGSizeEqualToSize(frame.size, self.frame.size)) {
         _pathLayer.path = [self pathForRect:frame withArrowOffset:arrowOffset].CGPath;
     }
+    
     _arrowCenterOffset = arrowOffset;
 
     CGFloat anchorX = 0.5+(arrowOffset/CGRectGetWidth(frame));
@@ -200,6 +211,7 @@ NSString *const FillColorAnimation = @"fillColor";
     _animDuration = 0.5;
     
     CAAnimation *anim = [self.layer animationForKey:@"position"];
+    
     if ((anim)) { // if previous animation hasn't finished reduce the time of new animation
         CFTimeInterval elapsedTime = MIN(CACurrentMediaTime() - anim.beginTime, anim.duration);
         _animDuration = _animDuration * elapsedTime / anim.duration;
@@ -328,11 +340,14 @@ static UIColor* opaqueUIColorFromCGColor(CGColorRef col)
     
     const CGFloat *components = CGColorGetComponents(col);
     UIColor *color;
+    
     if (CGColorGetNumberOfComponents(col) == 2) {
         color = [UIColor colorWithWhite:components[0] alpha:1.0];
-    } else {
+    }
+    else {
         color = [UIColor colorWithRed:components[0] green:components[1] blue:components[2] alpha:1.0];
     }
+    
     return color;
 }
 

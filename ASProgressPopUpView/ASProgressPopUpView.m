@@ -130,7 +130,8 @@
     
     if ([popUpViewAnimatedColors count] >= 2) {
         [self.popUpView setAnimatedColors:popUpViewAnimatedColors withKeyTimes:_keyTimes];
-    } else {
+    }
+    else {
         [self setPopUpViewColor:[popUpViewAnimatedColors lastObject] ?: _popUpViewColor];
     }
 }
@@ -196,6 +197,7 @@
     progressString = [self.dataSource progressView:self stringForProgress:self.progress] ?: [_numberFormatter stringFromNumber:@(self.progress)];
     if (progressString.length == 0) progressString = @"???"; // replacement for blank string
     
+    /*
     // set _popUpViewSize to appropriate size for the progressString if required
     if ([self.dataSource respondsToSelector:@selector(progressViewShouldPreCalculatePopUpViewSize:)] &&
         [self.dataSource progressViewShouldPreCalculatePopUpViewSize:self] == NO)
@@ -206,7 +208,10 @@
             _popUpViewSize = _defaultPopUpViewSize;
         }
     }
+    */
     
+    _popUpViewSize = CGSizeMake(120.0f, 20.0f);
+     
     // calculate the popUpView frame
     CGRect bounds = self.bounds;
     CGFloat xPos = (CGRectGetWidth(bounds) * self.progress) - _popUpViewSize.width/2;
@@ -227,7 +232,7 @@
 
 - (void)calculatePopUpViewSize
 {
-    _defaultPopUpViewSize = [self.popUpView popUpSizeForString:[_numberFormatter stringFromNumber:@1.0]];;
+    _defaultPopUpViewSize = [self.popUpView popUpSizeForString:[_numberFormatter stringFromNumber:@1.0]];
 
     // if there isn't a dataSource, set _popUpViewSize to _defaultPopUpViewSize
     if (!self.dataSource) {
@@ -252,6 +257,7 @@
             if (size.height > height) height = size.height;
         }
     }
+    
     _popUpViewSize = (width > 0.0 && height > 0.0) ? CGSizeMake(width, height) : _defaultPopUpViewSize;
 }
 
